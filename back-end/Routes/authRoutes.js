@@ -7,6 +7,8 @@ import {
   loginUser,
   getMe,
   updateProfile,
+  resetPassword,
+  forgetPassword,
 } from "../controllers/authController.js";
 
 import { protect } from "../middleware/authMiddleware.js";
@@ -83,5 +85,26 @@ router.get(
     );
   }
 );
+
+router.post("/forgot-password",forgetPassword)
+router.post("reset-password/:token",resetPassword)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default router;

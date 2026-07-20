@@ -204,6 +204,12 @@ export default function Login() {
             value={`Login As ${data[selected].title}`}
             className={`text-white font-bold ${data[selected].bg_icon} w-full max-w-lg p-2 m-auto rounded-md cursor-pointer`}
           />
+          <p className="text-center">
+         
+          <Link to="/forget" className="text-blue-700">
+            Forget Passsword?
+          </Link>
+          </p>
         </form>
 
         {/* SUCCESS MESSAGE */}

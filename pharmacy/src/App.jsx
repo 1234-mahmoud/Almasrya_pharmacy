@@ -16,6 +16,7 @@ import Footer from "../components/Footer";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import GoogleSuccess from "../pages/GoogleSuccess";
+import ForgetPassword from "../pages/ForgetPassword";
 function App() {
   return (
     <BrowserRouter>
@@ -39,6 +40,7 @@ function App() {
             <Route path="/user" element={<User />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forget" element={<ForgetPassword />} />
             <Route path="/google-success" element={<GoogleSuccess />} />
           </Routes>
         </main>
