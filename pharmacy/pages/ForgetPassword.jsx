@@ -37,7 +37,7 @@ export default function ForgetPassword() {
     if (token && isSuccess) {
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 1000);
     }
   }, [token, isSuccess, navigate]);
 

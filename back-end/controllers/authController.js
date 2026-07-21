@@ -248,9 +248,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-
-
-
+//forgot 
 export const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -313,13 +311,6 @@ export const forgetPassword = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
 
 
 
