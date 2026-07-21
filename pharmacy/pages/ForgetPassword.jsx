@@ -1,100 +1,147 @@
-import React from "react";
-import { Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import InputField from "../components/InputField";
+import {
+  requestPasswordReset,
+  confirmPasswordReset,
+  clearMessage,
+} from "../store/slices/authSlice";
+
 import {
   RiMailLine,
   RiLockLine,
-  RiUserFill,
-  RiIdCardLine,
-  RiAdminLine,
 } from "react-icons/ri";
+
 export default function ForgetPassword() {
-  const data = [
-    {
-      icon: RiAdminLine,
-      bg_icon: "bg-purple-500",
-      title: "Admin",
-      description: "Full system access",
-      outline_color: "outline-2 outline-purple-500",
-      role: "admin",
-    },
-    {
-      icon: RiIdCardLine,
-      bg_icon: "bg-green-500",
-      title: "Cashier",
-      description: "Sales & transaction",
-      outline_color: "outline-2 outline-green-500",
-      role: "cashier",
-    },
-    {
-      icon: RiUserFill,
-      bg_icon: "bg-sky-400",
-      title: "User",
-      description: "Browse & purchase",
-      outline_color: "outline-2 outline-sky-400",
-      role: "user",
-    },
-  ];
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { loading, message, isSuccess } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    return () => {
+      dispatch(clearMessage());
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (token && isSuccess) {
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+    }
+  }, [token, isSuccess, navigate]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (token) {
+      dispatch(
+        confirmPasswordReset({
+          token,
+          password,
+        })
+      );
+    } else {
+      dispatch(requestPasswordReset(email));
+    }
+  };
+
   return (
-    <div>
-    <form className={`w-full max-w-2xl mx-auto my-20 flex flex-col gap-5
-    bg-white rounded-md p-5 shadow-2xl shadow-gray-500
-    `}>
-      <InputField
-        label="Email Address"
-        type="email"
-        name="email"
-        placeholder="Enter your email"
-        Icon={RiMailLine}
-        // value={formData.email}
-        // onChange={handleChange}
-      />
+    <div className="p-5">
 
+      {!token ? (
 
-      <input
-        type="submit"
-        value={`submit`}
-        className={`text-white bg-blue-500 font-bold w-full max-w-xs p-2 m-auto rounded-md cursor-pointer`}
-      />
-      
-    </form>
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-xl mx-auto mt-20 bg-white shadow-xl rounded-lg p-6 flex flex-col gap-5"
+        >
 
+          <h2 className="text-2xl font-bold text-center">
+            Forgot Password
+          </h2>
 
+          <InputField
+            label="Email Address"
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            Icon={RiMailLine}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
+          {message && (
+            <p className="text-center text-blue-600 font-semibold">
+              {message}
+            </p>
+          )}
 
+          <input
+            type="submit"
+            disabled={loading}
+            value={
+              loading
+                ? "Sending..."
+                : "Send Reset Link"
+            }
+            className="bg-blue-600 text-white rounded-md p-3 cursor-pointer disabled:bg-gray-400"
+          />
 
+        </form>
 
+      ) : (
 
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-xl mx-auto mt-20 bg-white shadow-xl rounded-lg p-6 flex flex-col gap-5"
+        >
 
+          <h2 className="text-2xl font-bold text-center">
+            Reset Password
+          </h2>
 
+          <InputField
+            label="New Password"
+            type="password"
+            name="password"
+            placeholder="Enter your new password"
+            Icon={RiLockLine}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
+          {message && (
+            <p className="text-center text-blue-600 font-semibold">
+              {message}
+            </p>
+          )}
 
+          <input
+            type="submit"
+            disabled={loading}
+            value={
+              loading
+                ? "Updating..."
+                : "Reset Password"
+            }
+            className="bg-blue-600 text-white rounded-md p-3 cursor-pointer disabled:bg-gray-400"
+          />
 
+        </form>
 
-
-
-<form className={`w-full max-w-2xl mx-auto my-20 flex flex-col gap-5
-    bg-white rounded-md p-5 shadow-2xl shadow-gray-500
-    `}>
-      <InputField
-        label="New Password"
-        type="password"
-        placeholder="Enter The New Password"
-        Icon={RiMailLine}
-        // value={formData.email}
-        // onChange={handleChange}
-      />
-
-
-      <input
-        type="submit"
-        value={`submit`}
-        className={`text-white bg-blue-500 font-bold w-full max-w-xs p-2 m-auto rounded-md cursor-pointer`}
-      />
-      
-    </form>
-
-
+      )}
 
     </div>
   );

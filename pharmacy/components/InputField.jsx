@@ -1,4 +1,4 @@
-function InputField({ label, type, name, placeholder, onChange, value, Icon }) {
+function InputField({ label, type, name, placeholder, onChange, value, Icon, required = false }) {
   return (
     <div className="flex flex-col gap-2">
       <label>{label}</label>
@@ -16,6 +16,7 @@ function InputField({ label, type, name, placeholder, onChange, value, Icon }) {
           placeholder={placeholder}
           onChange={onChange}
           value={value}
+          required={required}
           className="outline-none w-full"
         />
       </div>

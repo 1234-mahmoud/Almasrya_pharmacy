@@ -18,6 +18,11 @@ export default function Register() {
     fullname: "",
     email: "",
     password: "",
+    phone: "",
+    street_address: "",
+    city: "",
+    state: "",
+    zip_code: "",
   });
 
   const [message, setMessage] = useState("");
@@ -53,6 +58,11 @@ export default function Register() {
         fullname: "",
         email: "",
         password: "",
+        phone: "",
+        street_address: "",
+        city: "",
+        state: "",
+        zip_code: "",
       });
   // clear message after 3 seconds
   setTimeout(() => {
@@ -90,6 +100,7 @@ export default function Register() {
             Icon={RiUserFill}
             value={formData.fullname}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -100,6 +111,7 @@ export default function Register() {
             Icon={RiMailLine}
             value={formData.email}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -110,6 +122,7 @@ export default function Register() {
             Icon={RiLockLine}
             value={formData.password}
             onChange={handleChange}
+            required
           />
 
            <InputField

@@ -87,7 +87,7 @@ router.get(
 );
 
 router.post("/forgot-password",forgetPassword)
-router.post("reset-password/:token",resetPassword)
+router.post("/reset-password/:token",resetPassword)
 
 
 

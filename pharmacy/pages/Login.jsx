@@ -187,6 +187,7 @@ export default function Login() {
             Icon={RiMailLine}
             value={formData.email}
             onChange={handleChange}
+            required
           />
 
           <InputField
@@ -197,6 +198,7 @@ export default function Login() {
             Icon={RiLockLine}
             value={formData.password}
             onChange={handleChange}
+            required
           />
 
           <input

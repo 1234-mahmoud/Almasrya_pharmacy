@@ -1,16 +1,27 @@
 import pool from "../db.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import { sendEmail } from "../config/sendEmails.js";
 // REGISTER
 export const registerUser = async (req, res) => {
   try {
-    const { fullname, email, password } = req.body;
+    const {
+      fullname, email, password, phone, street_address, city, state, zip_code,
+    } = req.body;
+
+    if (!fullname?.trim() || !email?.trim() || !password) {
+      return res.status(400).json({ message: "Full name, email and password are required" });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     // check email
     const userExists = await pool.query(
       "SELECT * FROM users WHERE email = $1",
-      [email],
+      [normalizedEmail],
     );
 
     if (userExists.rows.length > 0) {
@@ -30,16 +41,25 @@ export const registerUser = async (req, res) => {
             full_name,
             email,
             password,
-            role
+            role,
+            phone,
+            street_address,
+            city,
+            state,
+            zip_code
           )
-          VALUES ($1, $2, $3, $4)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
           RETURNING
           id,
           full_name,
           email,
           role
           `,
-      [fullname, email, hashedPassword, "user"],
+      [
+        fullname.trim(), normalizedEmail, hashedPassword, "user",
+        phone?.trim() || null, street_address?.trim() || null,
+        city?.trim() || null, state?.trim() || null, zip_code?.trim() || null,
+      ],
     );
 
     res.status(201).json({
@@ -59,12 +79,16 @@ export const registerUser = async (req, res) => {
 // LOGIN
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
+
+    if (!email?.trim() || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     // check user
     const userResult = await pool.query(
       "SELECT * FROM users WHERE email = $1",
-      [email],
+      [email.trim().toLowerCase()],
     );
 
     if (userResult.rows.length === 0) {
@@ -81,6 +105,12 @@ export const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         message: "Invalid email or password",
+      });
+    }
+
+    if (role && role !== user.role) {
+      return res.status(400).json({
+        message: `This account is registered as ${user.role}`,
       });
     }
 
@@ -218,91 +248,132 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-//Forget Password
+
+
 
 export const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const result = await pool.query("Select * from users Where email = $1", [
-      email,
-    ]);
+
+    if (!email?.trim()) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email.trim().toLowerCase()]
+    );
+
     if (result.rows.length === 0) {
       return res.status(404).json({
-        message: "user not found!!",
+        message: "User not found",
       });
+    }
 
-      const user = result.rows[0];
-      const token = jwt.sign(
-        {
-          id: user.id,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "15m",
-        },
-      );
+    const user = result.rows[0];
 
+    const token = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      }
+    );
 
-const resetLink = `${process.env.CLIENT_URL}/reset?token=${token}`;
-    console.log(`the reset link is ${resetLink}`);
+    // Remove a trailing slash so the email link always has one valid path.
+    const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173")
+      .replace(/\/+$/, "");
+    const resetLink =
+      `${clientUrl}/forget?token=${encodeURIComponent(token)}`;
+
     await sendEmail(
       user.email,
       "Reset Password",
       `
-        <h2>Password Reset</h2>
+      <h2>Password Reset</h2>
 
-        <p>Click the button below.</p>
+      <p>Click the button below to reset your password.</p>
 
-        <a href="${resetLink}">
-            Reset Password
-        </a>
-      `,
+      <a href="${resetLink}">
+      Reset Password
+      </a>
+      `
     );
- res.status(200).json({
-      message: "Reset Link Sent Successfully",
+
+    return res.status(200).json({
+      message: "Reset link sent successfully",
     });
-
-    }
   } catch (error) {
-     console.log(error);
+    console.log(error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server Error",
     });
   }
 };
 
 
-//reset
+
+
+
+
+
+
+
 
 export const resetPassword = async (req, res) => {
   try {
-    console.log("Params =", req.params);
-    const { token } = req.params; //token from reset link
-
-    console.log(token);
+    const { token } = req.params;
     const { password } = req.body;
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required",
+      });
+    }
 
-    const hashPassword = await bcrypt.hash(password, 10);//new password
+    if (password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
 
-    await pool.query(
-      `
-      UPDATE users
-      SET password=$1
-      WHERE id=$2
-      `,
-      [hashPassword, decoded.id], //replace old hashed password with new
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
     );
 
-    res.status(200).json({
-      message: "Password Updated Successfully",
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
+
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET password = $1
+      WHERE id = $2
+      `,
+      [
+        hashedPassword,
+        decoded.id,
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Password updated successfully",
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({
-      message: "Invalid Token",
+
+    return res.status(400).json({
+      message: "Invalid or expired token",
     });
   }
 };
