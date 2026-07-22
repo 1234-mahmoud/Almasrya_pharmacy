@@ -6,14 +6,25 @@ import { sendEmail } from "../config/sendEmails.js";
 export const registerUser = async (req, res) => {
   try {
     const {
-      fullname, email, password, phone, street_address, city, state, zip_code,
+      fullname,
+      email,
+      password,
+      phone,
+      street_address,
+      city,
+      state,
+      zip_code,
     } = req.body;
 
     if (!fullname?.trim() || !email?.trim() || !password) {
-      return res.status(400).json({ message: "Full name, email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Full name, email and password are required" });
     }
     if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -56,9 +67,15 @@ export const registerUser = async (req, res) => {
           role
           `,
       [
-        fullname.trim(), normalizedEmail, hashedPassword, "user",
-        phone?.trim() || null, street_address?.trim() || null,
-        city?.trim() || null, state?.trim() || null, zip_code?.trim() || null,
+        fullname.trim(),
+        normalizedEmail,
+        hashedPassword,
+        "user",
+        phone?.trim() || null,
+        street_address?.trim() || null,
+        city?.trim() || null,
+        state?.trim() || null,
+        zip_code?.trim() || null,
       ],
     );
 
@@ -82,7 +99,9 @@ export const loginUser = async (req, res) => {
     const { email, password, role } = req.body;
 
     if (!email?.trim() || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     // check user
@@ -248,7 +267,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-//forgot 
+//forgot
 export const forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -257,10 +276,9 @@ export const forgetPassword = async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email.trim().toLowerCase()]
-    );
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email.trim().toLowerCase(),
+    ]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -277,14 +295,14 @@ export const forgetPassword = async (req, res) => {
       process.env.JWT_SECRET,
       {
         expiresIn: "15m",
-      }
+      },
     );
 
     // Remove a trailing slash so the email link always has one valid path.
-    const clientUrl = (process.env.CLIENT_URL || "http://localhost:5173")
-      .replace(/\/+$/, "");
-    const resetLink =
-      `${clientUrl}/forget?token=${encodeURIComponent(token)}`;
+    const clientUrl = (
+      process.env.CLIENT_URL || "http://localhost:5173"
+    ).replace(/\/+$/, "");
+    const resetLink = `${clientUrl}/forget?token=${encodeURIComponent(token)}`;
 
     await sendEmail(
       user.email,
@@ -297,7 +315,7 @@ export const forgetPassword = async (req, res) => {
       <a href="${resetLink}">
       Reset Password
       </a>
-      `
+      `,
     );
 
     return res.status(200).json({
@@ -312,8 +330,6 @@ export const forgetPassword = async (req, res) => {
   }
 };
 
-
-
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -326,18 +342,14 @@ export const resetPassword = async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters" });
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       `
@@ -345,10 +357,7 @@ export const resetPassword = async (req, res) => {
       SET password = $1
       WHERE id = $2
       `,
-      [
-        hashedPassword,
-        decoded.id,
-      ]
+      [hashedPassword, decoded.id],
     );
 
     if (result.rowCount === 0) {
