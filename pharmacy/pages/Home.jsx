@@ -1,23 +1,19 @@
-import React, { useState,useEffect } from "react"
+import { useSelector } from "react-redux";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
 import Roles from "../components/Roles";
 import GetingStarted from "../components/GetingStarted";
-
 import API from "../api";
-export default function Home() {
-  const [data,setData] = useState("");
-  useEffect(()=>{
-    API.get("/").then((res)=>setData(res.data.message))
-  })
 
+export default function Home() {
+
+const {isLoggedin} = useSelector(state=>state.auth)
   return (
     <div className="">
      <Hero/>
      <Features/>
-     <Roles/>
+    {/* {isLoggedin? <Roles/>:""} */}
     <GetingStarted/>
-    {data}
     </div>
   );
 }

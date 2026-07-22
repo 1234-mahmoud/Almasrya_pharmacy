@@ -13,14 +13,16 @@ import EditMedicineModal from "./EditMedicineModal";
 export default function MedicinesTable() {
   const dispatch = useDispatch();
 
-  const { medicines } = useSelector((state) => state.medicine);
+  const { medicines, searchTerm } = useSelector((state) => state.medicine);
 
   useEffect(() => {
     dispatch(fetchMedicines());
   }, [dispatch]);
 
   const [selectedMedicine, setSelectedMedicine] = useState(null);
-
+const filteredMedicines = medicines.filter((medicine) =>
+  medicine.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
   return (
     <div className="overflow-x-auto">
       <table className="w-full table-fixed">
@@ -35,8 +37,8 @@ export default function MedicinesTable() {
         </thead>
 
         <tbody>
-          {medicines.length > 0 ? (
-            medicines.map((medicine) => (
+          {filteredMedicines.length > 0 ? (
+            filteredMedicines.map((medicine) => (
               <tr key={medicine.id} className="border-b border-gray-200">
                 <td className="py-3 text-center">{medicine.name}</td>
 
