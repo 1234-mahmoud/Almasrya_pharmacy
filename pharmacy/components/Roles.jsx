@@ -11,7 +11,7 @@ export default function Roles() {
       title: "Admin",
       describtion:
         "Full system access to manage inventory, users, view analytics, and configure system settings.",
-      link: "/admin",
+      link: "admin",
       link_color: "bg-[#cf4ada]",
       permissions: [
         "Inventory Management",
@@ -29,7 +29,7 @@ export default function Roles() {
       title: "Cashier",
       describtion:
         "Point-of-sale access to process transactions, manage sales, and handle customer purchases.",
-      link: "/cashier",
+      link: "cashier",
       link_color: "bg-green-500",
       permissions: [
         "Process Sales",
@@ -47,7 +47,7 @@ export default function Roles() {
       title: "User",
       describtion:
         "Customer access to browse medicines, place orders, and track purchase history.",
-      link: "/user",
+      link: "user",
       link_color: "bg-blue-600",
       permissions: [
         "Browse Medicines",
@@ -99,12 +99,13 @@ export default function Roles() {
               ))}
             </ul>
             <Link
-  to="/login"
-  state={{ role: c.title.toLowerCase() }}
-  className={`text-white ${c.link_color} text-center px-4 py-2 rounded-lg font-semibold`}
->
-  {c.btn_title}
-</Link>
+              // to="/login"
+              // state={{ role: c.title.toLowerCase() }}//send role but not show in the url
+              to={`/login?role=${c.link}`}
+              className={`text-white ${c.link_color} text-center px-4 py-2 rounded-lg font-semibold`}
+            >
+              {c.btn_title}
+            </Link>
           </article>
         ))}
       </div>

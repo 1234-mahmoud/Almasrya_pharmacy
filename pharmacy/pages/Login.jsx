@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import InputField from "../components/InputField";
 import API from "../api";
 import { useDispatch } from "react-redux";
@@ -11,12 +11,13 @@ import {
   RiAdminLine,
 } from "react-icons/ri";
 
-import { Link, useNavigate, useLocation  } from "react-router";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router";
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-const location = useLocation();
+  // const location = useLocation();//to read the date comming from link state
+
   const data = [
     {
       icon: RiAdminLine,
@@ -107,17 +108,18 @@ const location = useLocation();
     }
   };
 
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role");
+
   useEffect(() => {
-  const role = location.state?.role;
+    if (!role) return;
 
-  if (!role) return;
+    const index = data.findIndex((item) => item.role === role);
 
-  const index = data.findIndex((item) => item.role === role);
-
-  if (index !== -1) {
-    setSelected(index);
-  }
-}, [location.state]);
+    if (index !== -1) {
+      setSelected(index);
+    }
+  }, [role]);
 
   return (
     <div
@@ -219,10 +221,9 @@ const location = useLocation();
             className={`text-white font-bold ${data[selected].bg_icon} w-full max-w-lg p-2 m-auto rounded-md cursor-pointer`}
           />
           <p className="text-center">
-         
-          <Link to="/forget" className="text-blue-700">
-            Forget Passsword?
-          </Link>
+            <Link to="/forget" className="text-blue-700">
+              Forget Passsword?
+            </Link>
           </p>
         </form>
 
