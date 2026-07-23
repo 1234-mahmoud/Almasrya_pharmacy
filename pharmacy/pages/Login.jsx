@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import InputField from "../components/InputField";
 import API from "../api";
 import { useDispatch } from "react-redux";
@@ -11,12 +11,12 @@ import {
   RiAdminLine,
 } from "react-icons/ri";
 
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation  } from "react-router";
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+const location = useLocation();
   const data = [
     {
       icon: RiAdminLine,
@@ -106,6 +106,18 @@ export default function Login() {
       setError(error.response?.data?.message || "Login Failed !!");
     }
   };
+
+  useEffect(() => {
+  const role = location.state?.role;
+
+  if (!role) return;
+
+  const index = data.findIndex((item) => item.role === role);
+
+  if (index !== -1) {
+    setSelected(index);
+  }
+}, [location.state]);
 
   return (
     <div

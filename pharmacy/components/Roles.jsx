@@ -99,11 +99,12 @@ export default function Roles() {
               ))}
             </ul>
             <Link
-              to={c.link}
-              className={` text-white ${c.link_color} text-center px-4 py-2 rounded-lg font-semibold`}
-            >
-              {c.btn_title}
-            </Link>
+  to="/login"
+  state={{ role: c.title.toLowerCase() }}
+  className={`text-white ${c.link_color} text-center px-4 py-2 rounded-lg font-semibold`}
+>
+  {c.btn_title}
+</Link>
           </article>
         ))}
       </div>
