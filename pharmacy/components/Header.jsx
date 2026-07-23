@@ -18,9 +18,8 @@ export default function Header() {
   const handleLogout = () => {
     dispatch(logout());
 
-    navigate("/");
-  };
-
+  window.location.replace("/");
+  }
   return (
     <div
       className="

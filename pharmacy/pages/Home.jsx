@@ -12,7 +12,7 @@ const {isLoggedin} = useSelector(state=>state.auth)
     <div className="">
      <Hero/>
      <Features/>
-    {/* {isLoggedin? <Roles/>:""} */}
+    {isLoggedin? "":<Roles/>}
     <GetingStarted/>
     </div>
   );
